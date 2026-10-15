@@ -1,0 +1,45 @@
+/* Estilos extra para el material de consulta (se suman al tema por defecto de Quarto) */
+
+:root {
+  --acento: #7c3aed;
+  --acento-suave: #f4effe;
+}
+
+/* Bloque de ejercicio: franja morada a la izquierda */
+.ejercicio {
+  border-left: 5px solid var(--acento);
+  background: var(--acento-suave);
+  padding: 0.7rem 1.1rem 0.3rem 1.1rem;
+  margin: 1.4rem 0 0.6rem 0;
+  border-radius: 0 0.4rem 0.4rem 0;
+}
+.ejercicio ul, .ejercicio ol { margin-bottom: 0.6rem; }
+.ejercicio p:last-child { margin-bottom: 0.6rem; }
+
+/* Diagrama de los 4 paneles de RStudio */
+.rstudio-paneles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 8px;
+  margin: 1.2rem 0 1.6rem 0;
+  font-size: 0.95rem;
+}
+.rstudio-paneles .panel {
+  border: 2px solid #9ca3af;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  min-height: 6.5rem;
+}
+.rstudio-paneles .panel p { margin-bottom: 0; }
+.rstudio-paneles .panel strong { display: block; margin-bottom: 0.25rem; }
+.rstudio-paneles .editor  { background: #ede9fe; border-color: #7c3aed; }
+.rstudio-paneles .entorno { background: #dbeafe; border-color: #2563eb; }
+.rstudio-paneles .consola { background: #fce7f3; border-color: #db2777; }
+.rstudio-paneles .utiles  { background: #dcfce7; border-color: #16a34a; }
+
+/* Tablas de posiciones de matrices y arrays: celdas centradas y compactas */
+table td small { color: #6b7280; }
+
+/* Línea de tiempo: el año resaltado */
+.tabla-tiempo td:first-child { font-weight: 700; white-space: nowrap; }

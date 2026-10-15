@@ -1,0 +1,11 @@
+# Archivos temporales de Quarto / knitr / RStudio
+.quarto/
+*.knit.md
+*_files/
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Archivos de Claude Code (no se publican)
+.claude/

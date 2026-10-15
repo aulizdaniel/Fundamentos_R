@@ -1,0 +1,1510 @@
+---
+title: "Unidad 1: Fundamentos del lenguaje R y entorno de trabajo"
+subtitle: "Material de consulta del taller introductorio"
+author: "Daniel Auliz-Ortiz"
+date: "2026-10-01"
+date-format: "MMMM YYYY"
+lang: es
+language:
+  callout-tip-title: "Consejo"
+  title-block-author-single: "Autor"
+  title-block-published: "Fecha"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    code-copy: true
+    code-overflow: wrap
+    smooth-scroll: true
+    embed-resources: true
+    output-file: index.html
+    css: estilos.css
+bibliography: referencias.bib
+execute:
+  echo: true
+  warning: true
+  message: false
+knitr:
+  opts_chunk:
+    comment: "#>"
+    collapse: true
+---
+
+```{r}
+#| include: false
+# Guardamos los objetos que Quarto crea por su cuenta, para que no aparezcan
+# cuando mostremos ls() más adelante.
+.objetos_iniciales <- ls()
+```
+
+# Cómo usar este documento
+
+Este es el material de consulta de la **Unidad 1** del curso de R (X Congreso Mexicano de Ecología / I Congreso ReLatE, Puebla 2026). Reúne, ya explicado y con sus resultados, todo lo que vemos durante el taller introductorio. Está pensado para consultarlo después de la clase, junto con:
+
+- las **diapositivas** de la unidad, y
+- el **script** `introduccion_01.R`, donde escribes y corres el código durante el taller.
+
+Al terminar esta unidad podrás:
+
+1. Moverte en RStudio y organizar tu trabajo en un script.
+2. Crear y nombrar objetos, y usar operadores y funciones básicas.
+3. Instalar y cargar paquetes.
+4. Distinguir los tipos de datos y convertir de uno a otro.
+5. Crear y explorar vectores, matrices, arrays, data frames, tibbles y listas, y extraer partes de ellos (indexación).
+6. Escribir tus propias funciones.
+
+## Cómo está organizado
+
+Las secciones siguen el mismo orden del script:
+
+| Este documento | Script `introduccion_01.R` |
+|:------------------------------------|:-----------|
+| 2. ¿Qué es R? | (sólo diapositivas) |
+| 3. RStudio y primeros pasos | 0 |
+| 4. Las bases de R | 1 |
+| 5. Paquetes | 2 |
+| 6. Tipos de datos | 3 |
+| 7. Tipos de objetos | 4 |
+| 8. Funciones | 5 |
+| 9. Cierre | 6 |
+
+## Convenciones
+
+- Los bloques de código se pueden copiar con el botón de la esquina superior derecha.
+- Lo que aparece justo debajo de cada bloque, con `#>` al inicio, es el resultado que devuelve R.
+- Los cuadros de colores marcan notas, consejos y advertencias.
+- Los **ejercicios** aparecen en una franja morada. Intenta resolverlos primero: la **solución** está en un cuadro plegable justo debajo.
+
+::: {.callout-note}
+## Si quieres correr el código tú mismo
+
+La mayoría de los ejemplos de este documento están en el script [`introduccion_01.R`](introduccion_01.R) (descárgalo con clic derecho > *Guardar enlace como...*). Ábrelo en RStudio y corre cada línea con `Ctrl + Enter`. Los ejercicios los resuelves ahí mismo, en el espacio en blanco que sigue a cada uno.
+:::
+
+## Qué necesitas
+
+- **R** y **RStudio** instalados.
+- Los paquetes `tidyverse`, `readxl` y `lubridate` (la instalación se explica en la @sec-paquetes).
+
+# ¿Qué es R? {#sec-que-es-r}
+
+R es un **lenguaje de programación** y un entorno de desarrollo diseñado específicamente para estadística y análisis de datos.
+
+Ventajas de R:
+
+- Es de **código abierto y gratuito**.
+- Tiene una **gran comunidad** de usuarios y desarrolladores.
+- Cuenta con **abundantes paquetes** y herramientas específicas para ecología y otras disciplinas.
+
+## ¿Qué cosas puedes hacer?
+
+Con R puedes hacer gráficos, mapas, análisis estadísticos, modelos y reportes como este mismo documento. Como adelanto, estas pocas líneas producen una gráfica con los datos de ejemplo `iris` que vienen incluidos en R. (Los paquetes los explicamos en la @sec-paquetes.)
+
+```{r}
+#| label: fig-adelanto
+#| fig-cap: "Gráfica hecha con ggplot2 con los datos de ejemplo iris."
+#| fig-alt: "Gráfica de dispersión del largo del pétalo contra el largo del sépalo de tres especies de iris. Cada especie forma un grupo de puntos de distinto color."
+#| fig-width: 6.5
+#| fig-height: 4
+
+library(ggplot2)
+
+ggplot(iris, aes(x = Sepal.Length, y = Petal.Length, color = Species)) +
+  geom_point(size = 2, alpha = 0.8) +
+  scale_color_viridis_d() +
+  theme_minimal() +
+  labs(x = "Largo del sépalo (cm)", y = "Largo del pétalo (cm)", color = "Especie")
+```
+
+## Antes de R
+
+Antes de R existía **S**, un lenguaje diseñado para análisis estadísticos. Sentó las bases de la sintaxis que después R retoma y mejora. S era un software privado, usado en algunos sectores, pero su uso no se extendió.
+
+## Línea de tiempo
+
+| Año | Hito |
+|:-----|:-------------------------------------------------|
+| **1976** | Se crea S |
+| **1993** | Comienza la programación de R |
+| **1995** | Primer lanzamiento público de R |
+| **1997** | Formación del R Core Team |
+| **2000** | Versión 1.0 de R |
+| **2003** | Consolidación de CRAN |
+| **2007** | Sale ggplot (hoy ggplot2) |
+| **2011** | Lanzamiento de RStudio |
+| **2017** | Se consolida el tidyverse |
+| **2025** | R sigue siendo uno de los lenguajes más populares en ciencia |
+
+R fue creado por **Ross Ihaka y Robert Gentleman**, de la Universidad de Auckland (Nueva Zelanda), quienes describieron el lenguaje en @ihaka1996.
+
+## R y RStudio
+
+Es común confundirlos, pero son cosas distintas:
+
+| Característica | R | RStudio |
+|:---------|:--------------------|:----------------------|
+| ¿Qué es? | Lenguaje de programación | Entorno de desarrollo integrado |
+| Función | Calcula, grafica, hace modelos | Facilita la organización, edición y graficación de código |
+| Interfaz | Consola simple | Dividida en 4 partes con funciones distintas |
+| Gráficos | En ventanas externas | Los muestra directamente |
+| Síntesis | Es el motor que hace el código | Es la interfaz para interactuar |
+
+::: {.callout-tip}
+## Una analogía
+
+R es el motor de un coche; RStudio es el tablero, el volante y los pedales. Puedes usar el motor sin el tablero, pero conducir es mucho más cómodo con él.
+:::
+
+# RStudio y primeros pasos {#sec-rstudio}
+
+## Las partes de RStudio
+
+RStudio se divide en cuatro paneles:
+
+::: {.rstudio-paneles}
+::: {.panel .editor}
+**Editor de scripts**
+Aquí escribes y guardas tu código para usarlo después.
+:::
+::: {.panel .entorno}
+**Entorno global**
+Muestra los objetos que existen en tu sesión de trabajo.
+:::
+::: {.panel .consola}
+**Consola**
+Aquí R ejecuta el código y muestra los resultados, sin guardarlos necesariamente.
+:::
+::: {.panel .utiles}
+**Utilidades**
+Ayuda, gráficas, paquetes, archivos y visor (Help, Plots, Packages, Files, Viewer).
+:::
+:::
+
+::: {.callout-note}
+## Script o consola
+
+Escribe tu código en el **script**, no directamente en la consola: el script se guarda y se puede volver a correr; lo que escribes en la consola se pierde.
+:::
+
+## Atajos de teclado útiles
+
+| Acción | Windows / Linux | Mac |
+|:----------------------------|:-----------------------|:-----------------------|
+| Ejecutar línea o selección | `Ctrl + Enter` | `Cmd + Enter` |
+| Ejecutar todo el script | `Ctrl + Alt + R` | `Cmd + Option + R` |
+| Asignación `<-` | `Alt + -` | `Option + -` |
+| Pipe `%>%` | `Ctrl + Shift + M` | `Cmd + Shift + M` |
+| Comentar / descomentar | `Ctrl + Shift + C` | `Cmd + Shift + C` |
+| Limpiar la consola | `Ctrl + L` | `Ctrl + L` |
+| Reiniciar R | `Ctrl + Shift + F10` | `Cmd + Shift + F10` |
+| Índice del script | `Ctrl + Shift + O` | `Cmd + Shift + O` |
+| Autocompletar | `Tab` | `Tab` |
+| Recuperar código anterior (en la consola) | `↑` | `↑` |
+
+## Primeros pasos
+
+```{r}
+1 + 1                      # R funciona como una calculadora
+"Hola, R"                  # el texto va entre comillas
+print("Hola, R")           # imprime en la consola
+```
+
+Todo lo que sigue a un `#` es un **comentario**: R lo ignora. Úsalos para explicarle a tu "yo del futuro" qué hace cada línea y por qué.
+
+## Pedir ayuda
+
+```{r}
+#| eval: false
+?mean                      # abre la ayuda de una función
+help("sd")                 # es lo mismo
+```
+
+Fuera de R, copia el mensaje de error completo en un buscador: casi siempre alguien ya tuvo la misma duda.
+
+# Las bases de R {#sec-bases}
+
+R es un lenguaje **orientado a objetos**, aunque está profundamente influenciado por la programación **funcional**. En la práctica significa dos cosas:
+
+- Las unidades con que trabaja se llaman **objetos** (un número, una tabla, un modelo...).
+- Los objetos se transforman a través de **funciones**.
+
+## R como calculadora
+
+```{r}
+20 + 35                    # suma
+100 - 25                   # resta
+25 * 4                     # multiplicación
+625 / 5                    # división
+5 ^ 2                      # potencia
+sqrt(144)                  # raíz cuadrada
+log(10)                    # logaritmo natural
+log(10, base = 10)         # logaritmo base 10
+exp(2.302585)              # exponente: es la inversa de log()
+```
+
+También existen el residuo y la división entera, y los paréntesis cambian el orden de las operaciones:
+
+```{r}
+10 %% 3                    # residuo
+10 %/% 3                   # división entera
+2 + 3 * 4                  # primero la multiplicación
+(2 + 3) * 4                # los paréntesis cambian el orden
+```
+
+## Operadores lógicos
+
+Comparan valores y devuelven `TRUE` o `FALSE`.
+
+| Operador | Descripción | Ejemplo | Resultado |
+|:--------:|:--------------------------|:---------------------|:--------:|
+| `==` | Igual a | `5 == 5` | `TRUE` |
+| `!=` | No es igual a | `5 != 3` | `TRUE` |
+| `>` | Mayor que | `5 > 3` | `TRUE` |
+| `<` | Menor que | `5 < 3` | `FALSE` |
+| `>=` | Mayor o igual a | `5 >= 5` | `TRUE` |
+| `<=` | Menor o igual a | `3 <= 5` | `TRUE` |
+| `&` | Y lógico (AND) | `(5 > 3) & (2 < 4)` | `TRUE` |
+| <code>&vert;</code> | O lógico (OR) | <code>(2 &gt; 3) &vert; (5 &gt; 3)</code> | `TRUE` |
+| `!` | Negación lógica (NOT) | `!(5 > 3)` | `FALSE` |
+
+```{r}
+5 == 5
+5 != 3
+(5 > 3) & (2 < 4)
+(2 > 3) | (5 > 3)
+!(5 > 3)
+```
+
+Los operadores también trabajan con varios valores a la vez:
+
+```{r}
+c(1, 5, 10) > 4
+```
+
+::: {.callout-warning}
+## Ojo: `=` no es `==`
+
+Un solo `=` **asigna** un valor; dos `==` **comparan**. Confundirlos es uno de los errores más comunes al empezar.
+:::
+
+## Objetos y asignación
+
+Un **objeto** es un "contenedor" con nombre. Para crear uno se usa el operador de asignación `<-` (atajo: `Alt + -`):
+
+```{r}
+a <- 1
+b = 2                      # = también funciona, pero en R se prefiere <-
+
+a
+b
+a + b
+```
+
+R intenta identificar todo lo que escribes:
+
+| Cómo lo escribes | R lo interpreta como | Ejemplos |
+|:--------------------------------|:-----------------|:--------------------|
+| Sin comillas ni paréntesis | Un **objeto** | `a`, `b`, `resultado` |
+| Con paréntesis | Una **función** | `mean()`, `sum()` |
+| Entre comillas | **Texto** | `"Lunes"` |
+| Sólo dígitos | Un **número** | `23` |
+
+Si le asignas otro valor a un objeto que ya existe, el valor anterior se pierde:
+
+```{r}
+nombre <- "Juan"
+x <- 5
+x <- 10                    # al reasignar, el valor anterior se pierde
+x
+```
+
+## Cómo nombrar objetos
+
+Las reglas:
+
+- Pueden tener letras, números, `_` y `.`
+- No pueden empezar con un número ni llevar espacios.
+- R **distingue mayúsculas de minúsculas**: `x` y `X` son objetos distintos.
+- Evita nombres de funciones que ya existen (`mean`, `sum`, `c`, `t`, `df`, `data`).
+- Usa nombres cortos pero que digan qué contienen: `abundancia`, `temp_media`.
+
+::: {.ejercicio}
+**Ejercicio B1. ¿Cuáles funcionan y cuáles no?** Para cada línea: (1) predice qué pasará, (2) córrela, (3) lee el mensaje de R y explica por qué funciona o por qué falla.
+
+```{r}
+#| eval: false
+x == 5
+nombre <- Juan
+mean <- 10
+2datos <- 14
+salario juan <- 1500
+X
+Hola mundo
+resultado * 2
+3 -> j
+(j + resultado) * x
+```
+:::
+
+::: {.callout-tip title="Solución B1" collapse="true"}
+En este documento `x` vale 10.
+
+| Línea | ¿Qué pasa? | ¿Por qué? |
+|:---------------------|:-----------------------------|:---------------------------------|
+| `x == 5` | Funciona: devuelve `FALSE` | `==` **compara**, no asigna. Para asignar se usa `<-`. |
+| `nombre <- Juan` | Error: `objeto 'Juan' no encontrado` | Sin comillas R busca un objeto llamado Juan. El texto va entre comillas: `"Juan"`. |
+| `mean <- 10` | Funciona, pero es mala idea | Crea un objeto llamado igual que la función `mean()`. Evita nombres de funciones. Se borra con `rm(mean)`. |
+| `2datos <- 14` | Error: `unexpected symbol` | Un nombre no puede empezar con un número. |
+| `salario juan <- 1500` | Error: `unexpected symbol` | Los nombres no llevan espacios. Usa `salario_juan`. |
+| `X` | Error: `objeto 'X' no encontrado` | R distingue mayúsculas: existe `x`, no `X`. |
+| `Hola mundo` | Error: `unexpected symbol` | El texto necesita comillas: `"Hola mundo"`. |
+| `resultado * 2` | Error: `objeto 'resultado' no encontrado` | `resultado` todavía no existe: hay que crearlo antes. |
+| `3 -> j` | Funciona | `->` asigna hacia la derecha: es lo mismo que `j <- 3`. |
+| `(j + resultado) * x` | Funciona sólo si `j`, `resultado` y `x` existen | Aquí falla porque `resultado` no existe. |
+
+Una vez que creamos `resultado`, las líneas que fallaban por esa causa funcionan:
+
+```{r}
+resultado <- 4
+resultado * 2
+3 -> j
+(j + resultado) * x
+```
+:::
+
+## Funciones estadísticas básicas
+
+Para que los resultados sean **reproducibles** fijamos una semilla antes de generar números aleatorios. Así todas las personas obtienen los mismos números.
+
+```{r}
+set.seed(2026)
+aleatorio <- runif(20, min = 10, max = 30)    # 20 números entre 10 y 30
+aleatorio
+```
+
+```{r}
+sum(aleatorio)             # suma
+mean(aleatorio)            # promedio
+median(aleatorio)          # mediana
+sd(aleatorio)              # desviación estándar
+min(aleatorio)             # mínimo
+max(aleatorio)             # máximo
+length(aleatorio)          # longitud: cuántos datos hay
+round(aleatorio, 1)        # redondear a 1 decimal
+```
+
+::: {.callout-note}
+El promedio teórico de números entre 10 y 30 es 20, pero con sólo 20 datos el promedio observado varía. Con más datos, se acerca más a 20.
+:::
+
+`print()` imprime un objeto en la consola. En la práctica, basta con escribir el nombre del objeto:
+
+```{r}
+print(aleatorio[1:5])
+aleatorio[1:5]
+```
+
+## Trabajando con texto
+
+`paste()` y `paste0()` pegan texto. La diferencia es el separador: `paste0()` no usa ninguno.
+
+```{r}
+paste0("Hugo", "Paco", "Luis")              # sin separación
+paste("Hugo", "Paco", "Luis")               # separados por un espacio
+paste("Hugo", "Paco", "Luis", sep = "_")    # con el separador que elijas
+paste("Sitio", 1:3)                         # trabaja con varios valores a la vez
+```
+
+## Revisar y borrar objetos
+
+```{r}
+#| include: false
+rm(list = .objetos_iniciales)
+```
+
+```{r}
+ls()                       # lista de los objetos que existen en la sesión
+rm(aleatorio)              # borra un objeto
+ls()
+```
+
+```{r}
+rm(list = ls())            # borra todos los objetos de la sesión
+ls()
+```
+
+::: {.callout-warning}
+## Cuidado con `rm(list = ls())`
+
+Borra **todo** lo que tienes en memoria y no hay "deshacer". Otra forma de empezar desde cero es reiniciar la sesión: *Session > Restart R* (`Ctrl + Shift + F10`).
+:::
+
+# Paquetes {#sec-paquetes}
+
+Los **paquetes** son conjuntos de funciones, datos y código adicionales a R que permiten extender su potencial. Los desarrollan los propios usuarios, cada uno con funciones específicas para aplicaciones específicas, y se almacenan en repositorios como **CRAN** (The Comprehensive R Archive Network) o **GitHub**.
+
+## Instalar y cargar
+
+Usar un paquete requiere dos pasos:
+
+1. **Instalarlo**, una sola vez por computadora (necesita internet).
+2. **Cargarlo**, en cada sesión nueva.
+
+```{r}
+#| eval: false
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("lubridate")
+install.packages("ggplot2")        # ya viene dentro de tidyverse
+```
+
+```{r}
+#| message: true
+library(tidyverse)
+library(readxl)
+library(lubridate)
+```
+
+::: {.callout-tip}
+## Una analogía
+
+Instalar un paquete es como comprar un libro y ponerlo en tu estante (se hace una vez). Cargarlo con `library()` es sacarlo del estante y abrirlo (se hace cada vez que vas a usarlo).
+:::
+
+Al cargar el tidyverse, R avisa de los **conflictos**: funciones con el mismo nombre en dos paquetes. R usa la del paquete que cargaste **al último**.
+
+## Funciones con el mismo nombre en distintos paquetes
+
+`select()` existe en `dplyr` (selecciona columnas) y en `MASS` (selecciona el modelo óptimo). Para evitar ambigüedad se escribe `paquete::función()`:
+
+```{r}
+dplyr::select(iris, Species) %>% head()
+```
+
+Veamos qué pasa si cargamos MASS:
+
+```{r}
+#| message: true
+library(MASS)              # avisa que select() ahora es la de MASS
+```
+
+```{r}
+try(select(iris, Species)) # falla: ahora select() es la de MASS
+```
+
+```{r}
+dplyr::select(iris, Species) %>% head()     # con :: siempre funciona
+```
+
+Si ya no necesitas MASS, puedes descargarlo y `select()` vuelve a ser la de dplyr:
+
+```{r}
+detach("package:MASS", unload = TRUE)
+select(iris, Species) %>% head()
+```
+
+::: {.callout-tip}
+Si dudas de qué paquete viene una función, escribe `paquete::función()`.
+:::
+
+## El tidyverse
+
+El **tidyverse** es un conjunto de paquetes de R diseñados para trabajar de forma coherente en el análisis de datos. Todos comparten:
+
+- **Una filosofía común:** datos ordenados (*tidy data*), código legible y reproducible.
+- **Sintaxis consistente:** funciones con nombres predecibles y estructura similar.
+- **Interoperabilidad:** los paquetes están pensados para usarse juntos, evitando conflictos.
+
+```{r}
+tidyverse_packages()
+```
+
+## Un adelanto: el pipe
+
+El **pipe** (`%>%`, o `|>` en R base) pasa lo que está a su izquierda como primer argumento de la función de su derecha. `x %>% f()` equivale a `f(x)` y se lee "x, y luego f". Atajo: `Ctrl + Shift + M`.
+
+```{r}
+sqrt(144)
+144 %>% sqrt()
+```
+
+Lo usaremos en algunos ejemplos; en la siguiente unidad lo veremos a fondo.
+
+## ¿Dónde aprender más sobre un paquete?
+
+- **Cheatsheets** (hojas de referencia rápida): *Help > Cheat Sheets* en RStudio, o <https://posit.co/resources/cheatsheets/>.
+- **Manuales y viñetas** de cada paquete, por ejemplo `help(package = "dplyr")`.
+
+# Tipos de datos {#sec-tipos-datos}
+
+Cada valor en R tiene un tipo. Los cinco más comunes:
+
+| Tipo | Se muestra como | Ejemplo | Descripción |
+|:-----------|:----------|:------------------|:---------------------------|
+| Numérico | `num` / `dbl` | `a <- 5.5` | Números decimales |
+| Entero | `int` | `j <- 10L` | Números enteros (se escriben con `L`) |
+| Lógico | `logi` | `p <- TRUE` | Valores booleanos: `TRUE` / `FALSE` |
+| Carácter | `chr` | `z <- "Manzana"` | Texto o cadena de letras |
+| Factor | `factor` | `t <- factor("Azul")` | Datos categóricos con niveles finitos |
+
+```{r}
+a <- 5.5                   # numérico
+j <- 10L                   # entero
+p <- TRUE                  # lógico
+z <- "Manzana"             # carácter
+t <- factor("Azul")        # factor
+
+class(a)
+class(j)
+class(p)
+class(z)
+class(t)
+```
+
+## Verificar y convertir
+
+`class()` dice de qué tipo es un objeto. Las funciones `is.*()` preguntan "¿es de este tipo?" y las `as.*()` convierten a otro tipo.
+
+| Tipo | Verificar | Convertir |
+|:---------|:---------------|:----------------|
+| Numérico | `is.numeric()` | `as.numeric()` |
+| Entero | `is.integer()` | `as.integer()` |
+| Lógico | `is.logical()` | `as.logical()` |
+| Carácter | `is.character()` | `as.character()` |
+| Factor | `is.factor()` | `as.factor()` |
+
+```{r}
+h <- 18.5
+is.numeric(h)
+class(h)
+```
+
+```{r}
+d <- 20
+is.numeric(d)
+class(d)                   # R guarda los números como decimales
+d <- as.integer(d)         # convertimos
+class(d)
+```
+
+## Lo que pasa al convertir
+
+No toda conversión tiene sentido, y algunas tienen sorpresas:
+
+```{r}
+as.numeric(t)              # el factor es un código, no un texto
+as.factor(12)
+as.logical(t)              # no todo se puede convertir
+as.numeric(FALSE)          # FALSE vale 0 (y TRUE vale 1)
+as.integer(3.9)            # corta, NO redondea
+as.numeric("hola")         # no es un número: da NA y una advertencia
+```
+
+::: {.callout-warning}
+## Un error clásico: números guardados como factor
+
+Si una columna de números se importa como factor, `as.numeric()` **no** devuelve los valores, sino los códigos internos de los niveles. Para recuperar los valores, pasa primero por carácter:
+
+```{r}
+f <- factor(c("10", "20", "10", "30"))
+as.numeric(f)                  # ¡códigos internos, no los valores!
+as.numeric(as.character(f))    # así sí
+levels(f)                      # los niveles del factor
+nlevels(f)                     # cuántos niveles hay
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio T1.** Designa una variable `p` que valga 7. Verifica a qué tipo de variable corresponde (¿cuál crees que será?). Por último, conviértela a número entero.
+:::
+
+::: {.callout-tip title="Solución T1" collapse="true"}
+```{r}
+p <- 7
+class(p)
+p <- as.integer(p)
+class(p)
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio T2.** Designa una variable `f` que contenga la palabra viernes. Verifica el tipo de variable que crees que sea. Conviértela a factor.
+:::
+
+::: {.callout-tip title="Solución T2" collapse="true"}
+```{r}
+f <- "viernes"
+class(f)
+f <- as.factor(f)
+class(f)
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio T3.** Designa una variable `k` que valga 15.6. Verifica a qué tipo corresponde. Por último, conviértela a carácter.
+:::
+
+::: {.callout-tip title="Solución T3" collapse="true"}
+```{r}
+k <- 15.6
+class(k)
+k <- as.character(k)
+k
+class(k)
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio T4.** Designa una variable `w` que contenga el factor llamado lluvias. Verifica el tipo de variable usando `class()`. Convierte el valor a numérico.
+:::
+
+::: {.callout-tip title="Solución T4" collapse="true"}
+```{r}
+w <- factor("lluvias")
+class(w)
+as.numeric(w)
+```
+
+El resultado es `1`: el código del primer (y único) nivel, no un valor real.
+:::
+
+::: {.ejercicio}
+**Ejercicio T5.** Designa una variable `rr` que tenga como valor Verdadero (`TRUE`). Verifica el tipo de variable con `class()`. Por último, conviértela a numérico.
+:::
+
+::: {.callout-tip title="Solución T5" collapse="true"}
+```{r}
+rr <- TRUE
+class(rr)
+as.numeric(rr)
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio T6.** Designa una variable `hh` que contenga el valor `12L`. Verifica el tipo de variable usando `class()`. Convierte el valor a factor y observa cuántos niveles tiene.
+:::
+
+::: {.callout-tip title="Solución T6" collapse="true"}
+```{r}
+hh <- 12L
+class(hh)
+hh <- as.factor(hh)
+class(hh)
+nlevels(hh)
+levels(hh)
+```
+:::
+
+## Fechas (opcional)
+
+Las fechas tienen su propio tipo: `Date`. El paquete `lubridate` facilita trabajar con ellas.
+
+```{r}
+fecha <- as.Date("2024-01-09")             # formato año-mes-día
+class(fecha)
+fecha + 30                                 # se pueden hacer cuentas con fechas
+year(fecha)                                # lubridate: extraer partes
+month(fecha)
+dmy("9/1/2024")                            # lubridate: leer otros formatos
+```
+
+# Tipos de objetos {#sec-objetos}
+
+R trabaja con varios tipos de objetos: **vectores, matrices, arrays, data frames y listas**. Además hay objetos propios de ciertos paquetes: modelos, gráficos, objetos espaciales (raster), funciones...
+
+Esta tabla resume las diferencias:
+
+| Objeto | Dimensiones | ¿Mezcla tipos? | Se crea con | Se indexa con |
+|:-----------|:-----------------|:--------------------|:---------------|:---------------------|
+| Vector | 1 | No | `c()` | `x[i]` |
+| Matriz | 2 | No | `matrix()` | `m[i, j]` |
+| Array | 2 o más | No | `array()` | `a[i, j, k]` |
+| Data frame | 2 | Sí (un tipo por columna) | `data.frame()` | `df[i, j]`, `df$columna` |
+| Tibble | 2 | Sí (un tipo por columna) | `tibble()` | igual que un data frame |
+| Lista | 1 (de elementos) | Sí | `list()` | `l$nombre`, `l[["nombre"]]` |
+
+## Vectores
+
+Un **vector** es una colección ordenada de elementos del **mismo tipo**, organizados en una sola dimensión. Se crean con `c()` (de "combinar").
+
+```{r}
+mi_vector <- c(1, 2, 3, 4, 5)
+nombres <- c("Juan", "Ana", "Pedro")
+numeros <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+valores_verdad <- c(TRUE, FALSE, TRUE, TRUE)
+dias <- c("lunes", "martes", "miércoles", "jueves", "viernes", "sábado",
+          "domingo")
+
+class(mi_vector)
+length(numeros)
+```
+
+Hay atajos para crear secuencias y repeticiones:
+
+```{r}
+1:10                       # secuencia de enteros
+seq(0, 100, by = 25)       # secuencia con un paso
+rep("A", 3)                # repetir
+```
+
+Como un vector sólo puede tener un tipo, si mezclas tipos R convierte todo al más general (**coerción**):
+
+```{r}
+mezcla <- c(1, "a", TRUE)
+mezcla
+class(mezcla)
+```
+
+Los vectores se pueden operar completos, sin escribir ciclos:
+
+```{r}
+numeros * 2
+numeros + numeros
+numeros > 5
+```
+
+### Indexación
+
+**Indexar** es acceder, extraer o modificar elementos específicos dentro de un objeto usando su **posición**, su **nombre** o una **condición lógica**.
+
+```{r}
+x <- c(10, 20, 30)
+
+x[2]                       # por posición
+x[c(1, 3)]                 # varias posiciones
+x[2:3]                     # un rango
+x[-1]                      # todo MENOS la posición 1
+```
+
+Con una condición lógica:
+
+```{r}
+x > 15                     # primero se evalúa la condición...
+x[x > 15]                  # ...y los TRUE se quedan
+which(x > 15)              # ¿en qué posiciones se cumple?
+sum(x > 15)                # ¿cuántos la cumplen?
+```
+
+Para modificar un elemento, se asigna sobre su posición:
+
+```{r}
+x[2] <- 25
+x
+```
+
+Y los vectores pueden tener nombres:
+
+```{r}
+edades <- c(Juan = 30, Ana = 25, Pedro = 41)
+edades["Ana"]
+```
+
+::: {.ejercicio}
+**Ejercicio V1.** Esta es la abundancia de una especie en 8 sitios:
+
+```{r}
+abundancia <- c(12, 0, 5, 33, 8, 1, 0, 19)
+```
+
+a) ¿Cuántos sitios hay?
+b) ¿Cuál es la abundancia total?
+c) ¿Cuál es la abundancia del sitio 4?
+:::
+
+::: {.callout-tip title="Solución V1" collapse="true"}
+```{r}
+length(abundancia)         # a) número de sitios
+sum(abundancia)            # b) abundancia total
+abundancia[4]              # c) abundancia del sitio 4
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio V2.**
+
+a) Devuelve las abundancias que son mayores o iguales a 10.
+b) ¿En qué sitios (posiciones) ocurre eso?
+c) ¿En cuántos sitios la especie está ausente (abundancia = 0)?
+:::
+
+::: {.callout-tip title="Solución V2" collapse="true"}
+```{r}
+abundancia[abundancia >= 10]     # a) los valores
+which(abundancia >= 10)          # b) las posiciones
+sum(abundancia == 0)             # c) cuántos ceros hay
+```
+:::
+
+## Matrices
+
+Una **matriz** es una estructura de datos bidimensional que almacena elementos del **mismo tipo** en filas y columnas. Es una colección rectangular de datos organizada en una cuadrícula. Se crea con `matrix()` y se indexa con `[fila, columna]`.
+
+```{r}
+mi_mat_01 <- matrix(c(1:20), ncol = 4, nrow = 5)
+mi_mat_01
+
+dim(mi_mat_01)             # filas, columnas
+```
+
+Esta tabla muestra cada valor y, entre corchetes, su posición `[fila, columna]`:
+
+```{r}
+#| echo: false
+m <- mi_mat_01
+celdas <- matrix(sprintf("**%s** <small>[%d,%d]</small>", m, row(m), col(m)),
+                 nrow = nrow(m))
+dimnames(celdas) <- list(paste("fila", seq_len(nrow(m))),
+                         paste("col", seq_len(ncol(m))))
+knitr::kable(celdas, align = "c")
+```
+
+::: {.callout-note}
+## R llena las matrices por columnas
+
+Por defecto, `matrix()` acomoda los valores columna por columna. Con `byrow = TRUE` los acomoda por filas:
+
+```{r}
+matrix(1:6, nrow = 2, byrow = TRUE)
+```
+:::
+
+Otra matriz, ahora de texto:
+
+```{r}
+nombres_matriz <- matrix(c("Juan", "Ana", "Pedro", "Elena", "Jose", "Miguel",
+                           "Maria", "Adriana", "Eder", "Ines", "Joel",
+                           "Patricia"),
+                         nrow = 4, ncol = 3)
+nombres_matriz
+```
+
+### Indexación de matrices
+
+```{r}
+mi_mat_01[3, 2]           # fila 3, columna 2
+mi_mat_01[2, ]            # toda la fila 2     (columna vacía = todas)
+mi_mat_01[, 2]            # toda la columna 2  (fila vacía = todas)
+```
+
+::: {.ejercicio}
+**Ejercicios M1 a M7.**
+
+- M1. Devuelve el valor 14 de `mi_mat_01`.
+- M2. Devuelve el valor 2 de `mi_mat_01`.
+- M3. Devuelve sólo la fila 4 de `mi_mat_01`.
+- M4. Devuelve la columna 1 de `mi_mat_01`.
+- M5. Devuelve el nombre Adriana de `nombres_matriz`.
+- M6. Devuelve el nombre Ines de `nombres_matriz`.
+- M7. Devuelve la fila 4 de `nombres_matriz`.
+:::
+
+::: {.callout-tip title="Solución M1 a M7" collapse="true"}
+Apóyate en la tabla de posiciones de arriba.
+
+```{r}
+mi_mat_01[4, 3]            # M1
+mi_mat_01[2, 1]            # M2
+mi_mat_01[4, ]             # M3
+mi_mat_01[, 1]             # M4
+nombres_matriz[4, 2]       # M5
+nombres_matriz[2, 3]       # M6
+nombres_matriz[4, ]        # M7
+```
+:::
+
+## Arrays
+
+Un **array** es una estructura de datos **multidimensional** que almacena elementos del mismo tipo. Es la extensión natural de las matrices para representar datos con una organización más compleja. Se indexa con `[fila, columna, nivel]`.
+
+```{r}
+mi_array <- array(c(1:18), dim = c(3, 3, 2))
+mi_array
+
+dim(mi_array)
+```
+
+Un array de 3 × 3 × 2 es como dos matrices de 3 × 3 apiladas. Cada celda con su posición `[fila, columna, nivel]`:
+
+```{r}
+#| echo: false
+#| results: asis
+for (k in seq_len(dim(mi_array)[3])) {
+  m <- mi_array[, , k]
+  celdas <- matrix(sprintf("**%s** <small>[%d,%d,%d]</small>", m, row(m), col(m), k),
+                   nrow = nrow(m))
+  dimnames(celdas) <- list(paste("fila", seq_len(nrow(m))),
+                           paste("col", seq_len(ncol(m))))
+  cat("\n**Nivel", k, "**\n\n")
+  print(knitr::kable(celdas, align = "c"))
+  cat("\n")
+}
+```
+
+```{r}
+mi_array[1, 2, 2]          # fila 1, columna 2, nivel 2
+```
+
+::: {.ejercicio}
+**Ejercicios A1 a A3.**
+
+- A1. Devuelve el valor 17 de `mi_array`.
+- A2. Devuelve el valor 3 de `mi_array`.
+- A3. Devuelve los valores 13, 14 y 15 al mismo tiempo de `mi_array`.
+:::
+
+::: {.callout-tip title="Solución A1 a A3" collapse="true"}
+```{r}
+mi_array[2, 3, 2]          # A1
+mi_array[3, 1, 1]          # A2
+mi_array[, 2, 2]           # A3
+```
+:::
+
+## Data frames
+
+Un **data frame** es una estructura de datos bidimensional que organiza los datos en filas (observaciones) y columnas (variables), parecida a una hoja de cálculo o a una tabla de una base de datos. Su característica distintiva es que **cada columna puede tener un tipo de dato distinto**. Es el formato más común para datos ecológicos.
+
+```{r}
+df <- data.frame(
+  no     = c(1, 2, 3, 4, 8),
+  site   = c("A", "B", "A", "C", "D"),
+  temp   = c(22.5, 24.5, 27, 35, 26),
+  precip = c(650, 820, 698, 715, 905)
+)
+df
+```
+
+### Explorar un data frame
+
+| Función | Qué devuelve |
+|:-------------|:------------------------------------------------|
+| `class(df)` | El tipo de objeto |
+| `names(df)` | Los nombres de las columnas |
+| `dim(df)` | Las dimensiones (filas, columnas) |
+| `nrow(df)`, `ncol(df)` | El número de filas y de columnas |
+| `str(df)` | Un desglose de la estructura de los datos |
+| `glimpse(df)` | Lo mismo que `str()`, en versión tidyverse |
+| `head(df)` | Las primeras filas (útil cuando la tabla es grande) |
+| `summary(df)` | Un resumen de cada variable |
+| `df$temp` | Una columna |
+| `unique(df$site)` | Los valores únicos de una columna |
+| `table(df$site)` | La frecuencia de cada valor único |
+
+```{r}
+class(df)
+names(df)
+dim(df)
+nrow(df)
+ncol(df)
+```
+
+```{r}
+str(df)
+glimpse(df)
+```
+
+```{r}
+head(df)
+summary(df)
+```
+
+```{r}
+df$temp                    # una columna con $
+unique(df$site)            # valores únicos
+table(df$site)             # frecuencia de cada valor único
+```
+
+::: {.callout-warning}
+## Cuidado con la coincidencia parcial
+
+En un data frame, `$` acepta nombres incompletos (*coincidencia parcial*). Funciona, pero no te acostumbres: puede causar errores difíciles de detectar.
+
+```{r}
+df$prec                    # devuelve la columna precip
+```
+:::
+
+### Modificar un data frame
+
+::: {.callout-note}
+Estas instrucciones **cambian** `df`. Si necesitas volver al original, corre otra vez el bloque donde se creó.
+:::
+
+```{r}
+colnames(df) <- c("number", "locality", "T", "P")    # cambiar los nombres
+df
+```
+
+```{r}
+df$elevacion <- c(200, 400, 750, 1200, 1500)         # declarar una nueva variable
+df
+```
+
+### Un data frame con datos de mamíferos
+
+```{r}
+df_mamif <- data.frame(
+  Especie = c("Puma concolor", "Canis lupus", "Panthera onca", "Lynx rufus",
+              "Ursus americanus", "Canis latrans", "Mustela nivalis"),
+  Habitat = c("Bosques", "Bosques", "Selvas tropicales", "Praderas",
+              "Bosques", "Desiertos", "Tundra"),
+  Poblacion = c(100, 50, 30, 80, 120, 25, 15),
+  Estado_Conservacion = c("Preocupación menor", "Preocupación menor",
+                          "En riesgo", "Preocupación menor",
+                          "Preocupación menor", "Preocupación menor",
+                          "Preocupación menor")
+)
+df_mamif
+str(df_mamif)
+```
+
+### Indexación de data frames
+
+Un data frame se indexa como una matriz, con `[fila, columna]`, pero además se pueden usar **nombres** y **condiciones lógicas**:
+
+```{r}
+df_mamif[2, ]                          # la fila 2
+df_mamif[, "Poblacion"]                # una columna por nombre
+df_mamif[df_mamif$Poblacion > 90, ]    # las filas donde se cumple una condición
+```
+
+::: {.ejercicio}
+**Ejercicios D1 a D4.**
+
+- D1. Devuelve la columna Especie de `df_mamif`.
+- D2. Devuelve los datos completos de la fila de *Panthera onca*.
+- D3. Devuelve las columnas Habitat y Estado_Conservacion.
+- D4. Devuelve los datos de las filas *Lynx rufus* y *Canis lupus*.
+:::
+
+::: {.callout-tip title="Solución D1 a D4" collapse="true"}
+```{r}
+df_mamif$Especie                                                  # D1
+```
+
+```{r}
+df_mamif[df_mamif$Especie == "Panthera onca", ]                   # D2
+```
+
+```{r}
+df_mamif[, c("Habitat", "Estado_Conservacion")]                   # D3
+```
+
+```{r}
+df_mamif[df_mamif$Especie %in% c("Lynx rufus", "Canis lupus"), ]  # D4
+```
+
+En D4, `%in%` pregunta "¿está este valor dentro de este conjunto?". Otra opción es indicar las posiciones: `df_mamif[c(4, 2), ]`.
+:::
+
+## Tibbles
+
+Un **tibble** es una versión moderna del data frame, proporcionada por el paquete `tibble` del tidyverse. Entre sus ventajas:
+
+- Suele ser más eficiente para algunos procesos.
+- Se imprime de forma más limpia.
+- Mantiene la naturaleza de las variables.
+- Es muy compatible con el tidyverse.
+- Puede guardar objetos más complejos (por ejemplo, modelos).
+
+Puedes convertir de data frame a tibble (`as_tibble()`) y viceversa (`as.data.frame()`):
+
+```{r}
+tb_iris <- iris %>% as_tibble()
+```
+
+Compara cómo se imprime cada uno:
+
+```{r}
+head(iris)                 # data frame: sin información de los tipos
+```
+
+```{r}
+tb_iris                    # tibble: muestra el tipo de cada columna y sólo imprime las primeras filas
+```
+
+```{r}
+class(iris)
+class(tb_iris)
+```
+
+Una columna se obtiene igual que en un data frame:
+
+```{r}
+head(tb_iris$Sepal.Width)
+```
+
+::: {.callout-note}
+## Los tibbles son más estrictos
+
+A diferencia del data frame, el tibble **no** acepta nombres incompletos: devuelve `NULL` con una advertencia.
+
+```{r}
+head(iris$Sepal.W)         # data frame: funciona (coincidencia parcial)
+tb_iris$Sepal.W            # tibble: NULL con advertencia
+```
+:::
+
+Y la conversión funciona en los dos sentidos:
+
+```{r}
+df_mamif %>% as_tibble()
+tb_iris %>% as.data.frame() %>% head()
+```
+
+### Un tibble con un modelo adentro (opcional)
+
+Un tibble puede guardar objetos complejos en una columna, por ejemplo, un modelo estadístico:
+
+```{r}
+categoria <- c("A", "B", "A", "B")
+valor <- c(10, 20, 15, 25)
+texto <- c("hola", "mundo", "dato", "extra")
+
+# Creamos un modelo lineal (ejemplo simple)
+modelo <- lm(valor ~ categoria)
+
+# Un tibble con distintos tipos de datos, incluyendo el modelo
+mi_tibble <- tibble(
+  Categoria = categoria,
+  Valor = valor,
+  Texto = texto,
+  Modelo = list(modelo)    # el modelo se guarda como lista
+)
+mi_tibble
+```
+
+Para sacar el modelo: la columna `Modelo` (`$`), elemento 1 (`[[ ]]`):
+
+```{r}
+mi_tibble$Modelo[[1]] %>% summary()
+```
+
+## Listas
+
+Una **lista** es una estructura de datos que puede contener elementos de **distintos tipos y longitudes**: vectores, matrices, data frames, funciones e incluso otras listas. Cada elemento se identifica por un nombre o por una posición. Son muy versátiles y útiles para automatizar procesos.
+
+```{r}
+mi_lista <- list(
+  Nombre = "Juan",
+  Edad = 30,
+  Puntuaciones = c(85, 90, 88),
+  Aprobado = TRUE,
+  Detalles = data.frame(Hora = c("10:00", "12:30", "15:45"),
+                        Lugar = c("Bosque", "Río", "Montaña"))
+)
+mi_lista
+```
+
+```{r}
+names(mi_lista)
+str(mi_lista)              # estructura completa de la lista
+```
+
+### Indexación de listas
+
+Hay tres formas de indexar una lista, y no devuelven lo mismo:
+
+| Forma | Qué devuelve |
+|:----------------------------|:-------------------------------------------|
+| `mi_lista$Nombre` | El **elemento**, buscándolo por nombre |
+| `mi_lista[["Nombre"]]` | El **elemento**, por nombre o posición (`[[3]]`) |
+| `mi_lista["Nombre"]` | Una **lista más pequeña** que contiene ese elemento |
+
+```{r}
+mi_lista$Nombre
+mi_lista[["Nombre"]]
+mi_lista["Nombre"]         # una lista, no el valor
+mi_lista[[3]]              # por posición
+```
+
+Se pueden encadenar para llegar a elementos anidados:
+
+```{r}
+mi_lista$Nombre %>% class()
+mi_lista$Detalles$Hora
+```
+
+Para modificar o agregar elementos, se asigna sobre el nombre:
+
+```{r}
+mi_lista$Edad <- 31
+mi_lista$Ciudad <- "Puebla"
+names(mi_lista)
+```
+
+::: {.ejercicio}
+**Ejercicios L1 a L5.**
+
+- L1. Devuelve el valor Juan.
+- L2. Verifica qué tipo de objeto es Puntuaciones.
+- L3. Devuelve el valor 88 de Puntuaciones.
+- L4. Devuelve la columna Lugar de Detalles.
+- L5. Devuelve el valor Río de Detalles.
+:::
+
+::: {.callout-tip title="Solución L1 a L5" collapse="true"}
+```{r}
+mi_lista$Nombre                      # L1
+class(mi_lista$Puntuaciones)         # L2
+mi_lista$Puntuaciones[3]             # L3
+mi_lista$Detalles$Lugar              # L4
+mi_lista$Detalles$Lugar[2]           # L5
+```
+
+En L5 también funciona `mi_lista$Detalles[2, "Lugar"]`.
+:::
+
+# Funciones {#sec-funciones}
+
+Una **función** es un conjunto de instrucciones que realiza una tarea específica y se puede invocar (llamar) desde otras partes del código. Puede recibir parámetros de entrada (**argumentos**) y devolver un resultado (**valor de retorno**).
+
+Ventajas de usar y hacer funciones:
+
+1. **Automatización y ahorro de tiempo:** empaqueta una serie de instrucciones que corres de una sola vez.
+2. **Claridad y organización del código:** la función resuelve un problema específico y tiene un nombre. En lugar de muchas líneas, usas una sola.
+3. **Reutilización:** una vez declarada, puede usarse las veces que quieras.
+4. **Flexibilidad:** según los argumentos, la función puede adaptarse a distintos casos.
+
+## Estructura de una función
+
+```r
+nombre <- function(argumentos) {
+  cuerpo de la función
+  return(resultado)
+}
+```
+
+| Parte | Qué es |
+|:---------------|:--------------------------------------------------------------|
+| **Nombre** | Debe ser simple y referir a lo que hace la función: `sumar_numeros`, `buscar_nombre`. |
+| **Argumentos** | Dan sentido a la función: típicamente son los datos de entrada y los parámetros a especificar. Con nombres simples y claros, ordenados jerárquicamente. Pueden tener valores por defecto y ser números, caracteres, vectores, matrices, listas... |
+| **Cuerpo** | Define las instrucciones que se van a aplicar. Está delimitado por `{ }` y puede contener múltiples operaciones e incluso otras funciones. Lo que sucede aquí **no afecta** al código que está fuera. |
+| **Resultado** | Es el producto de la función (*output*). Suele usarse `return()`, pero también puede ser `print()`. Puede ser de muchos tipos y formatos, y lo define quien programa. |
+
+Algunos nombres de argumentos comunes: `x`, `y`, `z` (vectores), `w` (vector de ponderación), `i`, `j` (índices), `n` (número de datos), `nrow` y `ncol` (número de filas y columnas), `p` (número de variables).
+
+## Ejemplos sencillos
+
+Una suma:
+
+```{r}
+mi_suma <- function(a, b) {
+  suma <- a + b
+  return(suma)
+}
+
+mi_suma(2, 3)
+mi_suma(a = 10, b = 5)         # también se pueden nombrar los argumentos
+mi_suma(c(1, 2, 3), 10)        # y funciona con vectores
+```
+
+El área de un círculo, con un argumento que tiene un **valor por defecto**:
+
+```{r}
+area_circulo <- function(radio, digitos = 2) {
+  area <- pi * radio^2
+  area <- round(area, digitos)
+  return(area)
+}
+
+area_circulo(3)                  # usa digitos = 2
+area_circulo(3, digitos = 4)     # cambiamos el valor por defecto
+area_circulo(c(1, 2, 3))         # trabaja con vectores completos
+```
+
+## Una función ecológica: el índice de Shannon
+
+El índice de diversidad de Shannon se calcula como
+
+$$H' = -\sum_{i=1}^{S} p_i \ln(p_i)$$
+
+donde $p_i$ es la proporción de individuos de la especie $i$ y $S$ es el número de especies.
+
+```{r}
+shannon_index <- function(abundancias) {
+  p <- abundancias / sum(abundancias)
+  H <- -sum(p * log(p))
+  return(H)
+}
+```
+
+La probamos con dos comunidades de 40 individuos y 4 especies:
+
+```{r}
+comunidad_a <- c(10, 10, 10, 10)    # equitativa: 4 especies igual de comunes
+comunidad_b <- c(37, 1, 1, 1)       # dominada por una sola especie
+
+shannon_index(comunidad_a)
+shannon_index(comunidad_b)          # menor: hay menos diversidad
+```
+
+### ¿Qué pasa si una especie tiene abundancia 0?
+
+```{r}
+comunidad_c <- c(10, 5, 0, 5)
+shannon_index(comunidad_c)
+```
+
+Da `NaN` porque `0 * log(0)` no está definido. En datos reales es común tener especies con abundancia 0, así que conviene **corregir la función**: quitamos las especies ausentes antes de calcular. Para modificar una función basta con volver a correr su definición.
+
+```{r}
+shannon_index <- function(abundancias) {
+  abundancias <- abundancias[abundancias > 0]
+  p <- abundancias / sum(abundancias)
+  H <- -sum(p * log(p))
+  return(H)
+}
+
+shannon_index(comunidad_c)
+```
+
+::: {.callout-tip}
+Probar una función con casos "raros" (ceros, valores faltantes, un solo dato) es la mejor forma de encontrar errores antes de usarla con datos reales.
+:::
+
+::: {.ejercicio}
+**Ejercicio F1.** Escribe una función llamada `densidad()` que reciba el número de individuos (`n_individuos`) y el área muestreada en m² (`area_m2`) y devuelva la densidad en individuos por hectárea (1 ha = 10 000 m²). Pruébala con 25 individuos en 500 m².
+:::
+
+::: {.callout-tip title="Solución F1" collapse="true"}
+```{r}
+densidad <- function(n_individuos, area_m2) {
+  dens <- n_individuos / area_m2 * 10000     # 1 ha = 10 000 m2
+  return(dens)
+}
+
+densidad(25, 500)
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio F2.** Escribe una función llamada `coef_var()` que reciba un vector `x` y devuelva su coeficiente de variación en porcentaje: desviación estándar / promedio × 100. Pruébala con `peso <- c(120, 135, 128, 150, 110)`.
+:::
+
+::: {.callout-tip title="Solución F2" collapse="true"}
+```{r}
+coef_var <- function(x) {
+  cv <- sd(x) / mean(x) * 100
+  return(cv)
+}
+
+peso <- c(120, 135, 128, 150, 110)
+coef_var(peso)
+```
+:::
+
+::: {.ejercicio}
+**Ejercicio F3 (reto).** Escribe una función `simpson_index()` que devuelva el índice de Simpson, $1 - \sum p_i^2$, donde $p_i$ es la proporción de cada especie. Compara `comunidad_a`, `comunidad_b` y `comunidad_c`.
+:::
+
+::: {.callout-tip title="Solución F3" collapse="true"}
+```{r}
+simpson_index <- function(abundancias) {
+  p <- abundancias / sum(abundancias)        # los ceros no estorban aquí
+  D <- 1 - sum(p^2)
+  return(D)
+}
+
+simpson_index(comunidad_a)
+simpson_index(comunidad_b)
+simpson_index(comunidad_c)
+```
+
+Igual que con Shannon, la comunidad más equitativa (`comunidad_a`) tiene el valor más alto.
+:::
+
+::: {.ejercicio}
+**Ejercicio F4 (reto).** La equidad de Pielou es $J = H' / \ln(S)$, donde $S$ es el número de especies presentes (abundancia > 0). Escribe una función `pielou_index()` que use `shannon_index()` adentro. Pruébala con las tres comunidades.
+:::
+
+::: {.callout-tip title="Solución F4" collapse="true"}
+```{r}
+pielou_index <- function(abundancias) {
+  S <- sum(abundancias > 0)                  # especies presentes
+  J <- shannon_index(abundancias) / log(S)
+  return(J)
+}
+
+pielou_index(comunidad_a)
+pielou_index(comunidad_b)
+pielou_index(comunidad_c)
+```
+
+`J` va de 0 a 1: vale 1 cuando todas las especies tienen la misma abundancia. Una función puede llamar a otras funciones que ya definiste.
+:::
+
+# Cierre {#sec-cierre}
+
+## Lo que vimos
+
+- RStudio, scripts, comentarios y ayuda.
+- Objetos, asignación y buenas prácticas para nombrar.
+- Paquetes: instalar, cargar y evitar conflictos.
+- Tipos de datos: numérico, entero, lógico, carácter y factor.
+- Objetos: vectores, matrices, arrays, data frames, tibbles y listas.
+- Indexación: `[ ]`, `[ , ]`, `[[ ]]` y `$`.
+- Escribir tus propias funciones.
+
+## Hoja de referencia rápida
+
+| Para... | Usa |
+|:------------------------------|:-----------------------------------------------|
+| Saber el tipo de un objeto | `class()`, `str()`, `is.numeric()`, `is.character()`... |
+| Convertir de tipo | `as.numeric()`, `as.character()`, `as.integer()`, `as.logical()`, `as.factor()` |
+| Crear objetos | `c()`, `matrix()`, `array()`, `data.frame()`, `tibble()`, `list()` |
+| Explorar un objeto | `length()`, `dim()`, `nrow()`, `ncol()`, `names()`, `head()`, `glimpse()`, `summary()` |
+| Valores únicos y frecuencias | `unique()`, `table()` |
+| Calcular | `sum()`, `mean()`, `median()`, `sd()`, `min()`, `max()` |
+| Extraer partes | `x[i]`, `m[i, j]`, `a[i, j, k]`, `df$col`, `l[["nombre"]]` |
+| Ordenar tu espacio de trabajo | `ls()`, `rm()` |
+| Paquetes | `install.packages()`, `library()`, `paquete::función()` |
+| Escribir una función | `nombre <- function(argumentos) { ... return(resultado) }` |
+
+## Buenas prácticas para llevarte
+
+- **Encabeza cada script** con nombre, autor, propósito, fecha, datos de contacto y notas.
+- **Comenta** lo que haces y por qué.
+- Usa **nombres claros**, sin acentos ni espacios.
+- Antes de compartir un script, **reinicia R y córrelo completo** para comprobar que funciona de principio a fin.
+
+Un encabezado de ejemplo:
+
+```r
+# Nombre del script: Unidad 1 - Fundamentos del lenguaje R
+# Autor: Tu nombre
+# Propósito: Practicar los fundamentos de R
+# Fecha: Octubre 2026
+# Datos de contacto: tu_correo@ejemplo.com
+# Notas: Taller de R, Congreso Mexicano de Ecología
+```
+
+## Para seguir aprendiendo
+
+- *R para Ciencia de Datos*, traducción al español de *R for Data Science*: <https://es.r4ds.hadley.nz/>.
+- *R for Data Science* (2.ª edición, en inglés): <https://r4ds.hadley.nz/>.
+- Cheatsheets de RStudio y de los paquetes del tidyverse: <https://posit.co/resources/cheatsheets/>.
+
+## Contacto
+
+<!-- PENDIENTE: reemplazar TU-USUARIO por el usuario de GitHub (aparece 2 veces aquí) -->
+
+**Daniel Auliz-Ortiz**
+
+- Correo: <dauliz@cieco.unam.mx>
+- GitHub: [github.com/aulizdaniel](https://github.com/TU-USUARIO)
+
+::: {.callout-note title="Información de la sesión" collapse="true"}
+Las versiones de R y de los paquetes con los que se generó este documento:
+
+```{r}
+sessionInfo()
+```
+:::
+
+# Referencias {.unnumbered}
+
+::: {#refs}
+:::
