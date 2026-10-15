@@ -31,4 +31,4 @@ Abre `01_Fundamentos_R.qmd` en RStudio y haz clic en **Render**. Necesitas Quart
 
 Daniel Auliz-Ortiz  
 Correo: <dauliz@cieco.unam.mx>  
-GitHub: [@TU-USUARIO](https://github.com/TU-USUARIO)
+GitHub: [@TU-USUARIO](https://github.com/aulizdaniel)
