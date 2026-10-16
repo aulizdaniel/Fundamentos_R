@@ -4,7 +4,7 @@ Material de la **Unidad 1** del curso de R, impartido en el X Congreso Mexicano 
 
 <!-- PENDIENTE: reemplazar TU-USUARIO por el usuario de GitHub (aparece 2 veces en este archivo) -->
 
-**Material de consulta (página web):** <[https://aulizdaniel.github.io/Fundamentos_R/](https://github.com/aulizdaniel/Fundamentos_R.git)>
+**Material de consulta (página web):** <[https://aulizdaniel.github.io/Fundamentos_R/](https://aulizdaniel.github.io/Fundamentos_R/)>
 
 ## Qué hay en este repositorio
 
