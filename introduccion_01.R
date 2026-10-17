@@ -54,7 +54,6 @@
 # Comentar / descomentar          Ctrl + Shift + C
 # Limpiar la consola              Ctrl + L
 # Reiniciar R                     Ctrl + Shift + F10
-# Índice del script               Ctrl + Shift + O
 # Autocompletar                   Tab
 # Recuperar código anterior       Flecha arriba (en la consola)
 
